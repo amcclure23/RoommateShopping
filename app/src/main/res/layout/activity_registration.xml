@@ -1,132 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:layout_marginTop="64dp">
 
-    <LinearLayout
-        android:layout_width="350sp"
+    <ScrollView
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5">
 
-        <TextView
-            android:id="@+id/registerLabel"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="350sp"
             android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:textSize="36sp"
-            android:textStyle="bold"
-            android:text="Register" />
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
 
-        <View
-            android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:background="?android:attr/listDivider" />
+            <TextView
+                android:id="@+id/registerLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Register"
+                android:textAlignment="center"
+                android:textSize="36sp"
+                android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/firstNameLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="First Name:"
-            android:textAllCaps="true"
-            android:textColor="#000000"
-            android:textStyle="bold|italic" />
+            <View
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="?android:attr/listDivider" />
 
-        <EditText
-            android:id="@+id/firstNameRegister"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="First Name..."
-            android:inputType="textEmailAddress"
-            android:textSize="24sp" />
+            <TextView
+                android:id="@+id/firstNameLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="First Name:"
+                android:textAllCaps="true"
+                android:textColor="#000000"
+                android:textStyle="bold|italic" />
 
-        <TextView
-            android:id="@+id/lastNameLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Last Name"
-            android:textAllCaps="true"
-            android:textColor="@color/black"
-            android:textStyle="bold|italic" />
+            <EditText
+                android:id="@+id/firstNameRegister"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="First Name..."
+                android:inputType="textEmailAddress"
+                android:textSize="24sp" />
 
-        <EditText
-            android:id="@+id/lastNameRegister"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Last Name..."
-            android:inputType="textEmailAddress"
-            android:textSize="24sp" />
+            <TextView
+                android:id="@+id/lastNameLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Last Name"
+                android:textAllCaps="true"
+                android:textColor="@color/black"
+                android:textStyle="bold|italic" />
 
-        <TextView
-            android:id="@+id/emailLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Email:"
-            android:textAllCaps="true"
-            android:textColor="#000000"
-            android:textStyle="bold|italic" />
+            <EditText
+                android:id="@+id/lastNameRegister"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Last Name..."
+                android:inputType="textEmailAddress"
+                android:textSize="24sp" />
 
-        <EditText
-            android:id="@+id/emailRegister"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Email..."
-            android:inputType="textEmailAddress"
-            android:textSize="24sp" />
+            <TextView
+                android:id="@+id/emailLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Email:"
+                android:textAllCaps="true"
+                android:textColor="#000000"
+                android:textStyle="bold|italic" />
 
-        <TextView
-            android:id="@+id/passwordLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Password:"
-            android:textAllCaps="true"
-            android:textColor="#000000"
-            android:textStyle="bold|italic" />
+            <EditText
+                android:id="@+id/emailRegister"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Email..."
+                android:inputType="textEmailAddress"
+                android:textSize="24sp" />
 
-        <EditText
-            android:id="@+id/passwordRegister"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Password..."
-            android:inputType="textWebPassword"
-            android:textSize="24sp" />
+            <TextView
+                android:id="@+id/passwordLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Password:"
+                android:textAllCaps="true"
+                android:textColor="#000000"
+                android:textStyle="bold|italic" />
 
-        <TextView
-            android:id="@+id/confirmPasswordLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Confirm Password:"
-            android:textAllCaps="true"
-            android:textColor="#000000"
-            android:textStyle="bold|italic" />
+            <EditText
+                android:id="@+id/passwordRegister"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Password..."
+                android:inputType="textWebPassword"
+                android:textSize="24sp" />
 
-        <EditText
-            android:id="@+id/confirmPasswordRegister"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Confirm Password..."
-            android:inputType="textWebPassword"
-            android:textSize="24sp" />
+            <TextView
+                android:id="@+id/confirmPasswordLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Confirm Password:"
+                android:textAllCaps="true"
+                android:textColor="#000000"
+                android:textStyle="bold|italic" />
 
-        <Button
-            android:id="@+id/createAccountButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="Create Account" />
+            <EditText
+                android:id="@+id/confirmPasswordRegister"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Confirm Password..."
+                android:inputType="textWebPassword"
+                android:textSize="24sp" />
 
-    </LinearLayout>
+            <Button
+                android:id="@+id/createAccountButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Create Account" />
+
+        </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

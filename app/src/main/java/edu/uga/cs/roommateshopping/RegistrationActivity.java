@@ -86,16 +86,15 @@ public class RegistrationActivity extends AppCompatActivity {
                                         if (task1.isSuccessful()) {
                                             // User created successfully
                                             FirebaseUser firebaseUser = auth.getCurrentUser();
+                                            String userID = firebaseUser.getUid();
 
                                             // Create a User object and set its properties
                                             User user = new User();
                                             user.setFirstName(firstName);
                                             user.setLastName(lastName);
                                             user.setEmail(email);
+                                            usersRef.child(userID).setValue(user);
 
-                                            // Generate a new child location using a unique key and save the User object to the database
-                                            DatabaseReference newUserRef = usersRef.push();
-                                            newUserRef.setValue(user);
                                             Context context = getApplicationContext();
                                             CharSequence text = "Account creation successful!";
                                             int duration = Toast.LENGTH_SHORT;

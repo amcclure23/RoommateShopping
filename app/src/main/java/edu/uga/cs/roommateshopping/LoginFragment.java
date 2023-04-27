@@ -6,6 +6,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +20,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class LoginFragment extends Fragment {
 
@@ -94,6 +97,17 @@ public class LoginFragment extends Fragment {
                         if (task.isSuccessful()) {
                             // User authenticated successfully
                             Toast.makeText(getActivity(), "Logged in successfully", Toast.LENGTH_SHORT).show();
+                            FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                            FragmentTransaction transaction = fragmentManager.beginTransaction();
+                            HomeFragment homeFragment = new HomeFragment();
+                            FirebaseAuth auth = FirebaseAuth.getInstance();
+                            FirebaseUser currentUser = auth.getCurrentUser();
+                            Bundle args = new Bundle();
+                            args.putParcelable("currentUser", currentUser);
+                            homeFragment.setArguments(args);
+                            transaction.add(R.id.main_activity_layout, homeFragment);
+                            transaction.remove(LoginFragment.this);
+                            transaction.commit();
                         } else {
                             // Authentication failed
                             Toast.makeText(getActivity(), "Login failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
