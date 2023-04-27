@@ -51,7 +51,16 @@ public class RegistrationActivity extends AppCompatActivity {
             String password = passwordEditText.getText().toString();
             String confirmPassword = confirmPasswordEditText.getText().toString();
 
-            if (!password.equals(confirmPassword)) {
+            // Check if any of the fields are empty
+            if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+                Context context = getApplicationContext();
+                CharSequence text = "Please fill all fields before registering.";
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
+
+            } else if (!password.equals(confirmPassword)) {
                 Context context = getApplicationContext();
                 CharSequence text = "Password Mismatch! Please ensure your password fields match.";
                 int duration = Toast.LENGTH_SHORT;
