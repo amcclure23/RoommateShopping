@@ -1,6 +1,7 @@
 package edu.uga.cs.roommateshopping;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -92,6 +93,8 @@ public class RegistrationActivity extends AppCompatActivity {
 
                                             Toast toast = Toast.makeText(context, text, duration);
                                             toast.show();
+                                            Intent intent = new Intent(this, MainActivity.class);
+                                            startActivity(intent);
                                         } else {
                                             // User creation failed
                                             String errorMessage = task1.getException().getMessage();
