@@ -39,7 +39,7 @@ public class AccountFragment extends Fragment {
     private FirebaseDatabase database;
     private DatabaseReference userRef;
     private User user;
-    private EditText editUserFirstName, editUserLastName, editUserEmail;
+    private EditText editUserFirstName, editUserLastName;
     private Button updateUserInfoButton, changePasswordButton;
 
     public AccountFragment() {
@@ -78,7 +78,6 @@ public class AccountFragment extends Fragment {
                         assert user != null;
                         editUserFirstName.setText(user.getFirstName());
                         editUserLastName.setText(user.getLastName());
-                        editUserEmail.setText(user.getEmail());
                     }
                 }
 
@@ -96,7 +95,6 @@ public class AccountFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_account, container, false);
         editUserFirstName = view.findViewById(R.id.editUserFirstName);
         editUserLastName = view.findViewById(R.id.editUserLastName);
-        editUserEmail = view.findViewById(R.id.editUserEmail);
         updateUserInfoButton = view.findViewById(R.id.submitChangePasswordButton);
         changePasswordButton = view.findViewById(R.id.changePasswordButton);
         updateUserInfoButton.setOnClickListener(new View.OnClickListener() {
@@ -107,10 +105,8 @@ public class AccountFragment extends Fragment {
                 DatabaseReference myRef = database.getReference("users");
                 String firstName = editUserFirstName.getText().toString();
                 String lastName = editUserLastName.getText().toString();
-                String email = editUserEmail.getText().toString();
                 String fullName = firstName + " " + lastName;
                 Map<String, Object> updates = new HashMap<>();
-                updates.put("email", email);
                 updates.put("firstName", firstName);
                 updates.put("lastName", lastName);
                 updates.put("fullName", fullName);
