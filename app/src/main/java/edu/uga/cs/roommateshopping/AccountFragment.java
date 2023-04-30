@@ -34,11 +34,16 @@ import java.util.Map;
  */
 public class AccountFragment extends Fragment {
 
+    // Firebase Objects
     private FirebaseUser firebaseUser;
     private FirebaseAuth auth;
     private FirebaseDatabase database;
     private DatabaseReference userRef;
+
+    // Local User Info
     private User user;
+
+    // Application UI
     private EditText editUserFirstName, editUserLastName;
     private Button updateUserInfoButton, changePasswordButton;
 
