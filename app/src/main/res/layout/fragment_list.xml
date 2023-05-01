@@ -78,7 +78,7 @@
                 android:id="@+id/doneB"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="done" />
+                android:text="return to home page" />
 
             <ScrollView
                 android:layout_width="match_parent"

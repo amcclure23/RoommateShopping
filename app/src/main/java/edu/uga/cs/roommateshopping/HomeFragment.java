@@ -254,12 +254,15 @@ public class HomeFragment extends Fragment {
         openButton.setOnClickListener(v -> {
             FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
-            EditListInfoFragment editListInfoFragment = new EditListInfoFragment();
+           // EditListInfoFragment editListInfoFragment = new EditListInfoFragment();
+            ListFragment listFragment = new ListFragment();
             Bundle args = new Bundle();
             args.putParcelable("currentUser", firebaseUser);
             args.putString("ShoppingListID", listID);
-            editListInfoFragment.setArguments(args);
-            transaction.add(R.id.main_activity_layout, editListInfoFragment);
+          //  editListInfoFragment.setArguments(args);
+          //  transaction.add(R.id.main_activity_layout, editListInfoFragment);
+            listFragment.setArguments(args);
+            transaction.add(R.id.main_activity_layout, listFragment);
             transaction.remove(HomeFragment.this);
             transaction.commit();
         });
