@@ -208,39 +208,26 @@ public class HomeFragment extends Fragment {
     }
 
     private void attachShoppingListListener() {
-        Query query = shoppingListRef.orderByChild("ownerID").equalTo(firebaseUser.getUid());
-        query.addChildEventListener(new ChildEventListener() {
+        shoppingListRef.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, String previousChildName) {
-                ShoppingList shoppingList = snapshot.getValue(ShoppingList.class);
-                if (shoppingList != null && (shoppingList.getOwnerID().equals(firebaseUser.getUid()) || shoppingList.getRoommates().contains(firebaseUser.getUid()))) {
-                    addShoppingListEntry(shoppingList);
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    ShoppingList shoppingList = snapshot.getValue(ShoppingList.class);
+                    String listID = snapshot.getKey();
+                    if (shoppingList != null && (shoppingList.getOwnerID().equals(firebaseUser.getUid()) || shoppingList.getRoommates().contains(firebaseUser.getUid()))) {
+                        addShoppingListEntry(shoppingList, listID);
+                    }
                 }
             }
 
             @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, String previousChildName) {
-                // Handle shopping list changes if needed
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-                // Handle shopping list removal if needed
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, String previousChildName) {
-                // Handle shopping list move if needed
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
                 // Handle errors if needed
             }
         });
     }
 
-    private void addShoppingListEntry(ShoppingList shoppingList) {
+    private void addShoppingListEntry(ShoppingList shoppingList, String listID) {
         TextView listName = new TextView(getContext());
         listName.setText(shoppingList.getName());
         listName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
@@ -259,7 +246,16 @@ public class HomeFragment extends Fragment {
         Button openButton = new Button(getContext());
         openButton.setText("Open");
         openButton.setOnClickListener(v -> {
-            // Handle the button click, e.g., open the shopping list details
+            FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            EditListInfoFragment editListInfoFragment = new EditListInfoFragment();
+            Bundle args = new Bundle();
+            args.putParcelable("currentUser", firebaseUser);
+            args.putString("ShoppingListID", listID);
+            editListInfoFragment.setArguments(args);
+            transaction.add(R.id.main_activity_layout, editListInfoFragment);
+            transaction.remove(HomeFragment.this);
+            transaction.commit();
         });
 
         LinearLayout.LayoutParams openButtonParams = new LinearLayout.LayoutParams(

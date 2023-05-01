@@ -8,15 +8,17 @@ public class User implements Parcelable {
     public String lastName;
     public String fullName;
     public String email;
+    public String userID;
 
     public User() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
 
-    public User(String firstName, String lastName, String email) {
+    public User(String firstName, String lastName, String email, String userID) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.userID = userID;
     }
 
     public String getFirstName() {
@@ -46,6 +48,10 @@ public class User implements Parcelable {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public String getUserID(){ return userID; }
+
+    public void setUserID(String userID) { this.userID = userID; }
 
     // implement the Parcelable interface
     protected User(Parcel in) {
