@@ -1,6 +1,7 @@
 package edu.uga.cs.roommateshopping;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -24,6 +25,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.Query;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.text.TextUtils;
@@ -52,6 +55,9 @@ public class HomeFragment extends Fragment {
     private FloatingActionButton menuButton;
     private Button createShoppingListButton;
 
+    private LinearLayout shoppingListContainer;
+    private DatabaseReference shoppingListRef;
+
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -79,8 +85,6 @@ public class HomeFragment extends Fragment {
                     if (snapshot.exists()) {
                         user = snapshot.getValue(User.class);
                         assert user != null;
-                        String welcomeMessage = "Welcome " + user.getFirstName() + "!";
-                        welcomeMessageView.setText(welcomeMessage);
                         System.out.println("User was found!");
                     }
                 }
@@ -97,7 +101,9 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-        welcomeMessageView = view.findViewById(R.id.welcome_message);
+        shoppingListContainer = view.findViewById(R.id.shopping_list_container);
+        shoppingListRef = database.getReference("shopping_lists");
+        attachShoppingListListener();
         createShoppingListButton = view.findViewById(R.id.createShoppingListButton);
         createShoppingListButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -200,4 +206,71 @@ public class HomeFragment extends Fragment {
 
         alertDialog.show();
     }
+
+    private void attachShoppingListListener() {
+        Query query = shoppingListRef.orderByChild("ownerID").equalTo(firebaseUser.getUid());
+        query.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, String previousChildName) {
+                ShoppingList shoppingList = snapshot.getValue(ShoppingList.class);
+                if (shoppingList != null && (shoppingList.getOwnerID().equals(firebaseUser.getUid()) || shoppingList.getRoommates().contains(firebaseUser.getUid()))) {
+                    addShoppingListEntry(shoppingList);
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, String previousChildName) {
+                // Handle shopping list changes if needed
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                // Handle shopping list removal if needed
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, String previousChildName) {
+                // Handle shopping list move if needed
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Handle errors if needed
+            }
+        });
+    }
+
+    private void addShoppingListEntry(ShoppingList shoppingList) {
+        TextView listName = new TextView(getContext());
+        listName.setText(shoppingList.getName());
+        listName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        listName.setTextColor(Color.BLACK);
+
+        LinearLayout.LayoutParams listNameParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        int listNameMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
+        listNameParams.setMargins(0, 0, 0, listNameMargin);
+        listName.setLayoutParams(listNameParams);
+
+        shoppingListContainer.addView(listName);
+
+        Button openButton = new Button(getContext());
+        openButton.setText("Open");
+        openButton.setOnClickListener(v -> {
+            // Handle the button click, e.g., open the shopping list details
+        });
+
+        LinearLayout.LayoutParams openButtonParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        int openButtonMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, getResources().getDisplayMetrics());
+        openButtonParams.setMargins(0, 0, 0, openButtonMargin);
+        openButton.setLayoutParams(openButtonParams);
+
+        shoppingListContainer.addView(openButton);
+    }
+
 }
