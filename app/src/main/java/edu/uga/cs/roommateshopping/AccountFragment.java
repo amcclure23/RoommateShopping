@@ -45,7 +45,7 @@ public class AccountFragment extends Fragment {
 
     // Application UI
     private EditText editUserFirstName, editUserLastName;
-    private Button updateUserInfoButton, changePasswordButton;
+    private Button updateUserInfoButton, changePasswordButton, homeButton;
 
     public AccountFragment() {
         // Required empty public constructor
@@ -102,6 +102,7 @@ public class AccountFragment extends Fragment {
         editUserLastName = view.findViewById(R.id.editUserLastName);
         updateUserInfoButton = view.findViewById(R.id.submitChangePasswordButton);
         changePasswordButton = view.findViewById(R.id.changePasswordButton);
+        homeButton = view.findViewById(R.id.returnHomeButton);
         updateUserInfoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -142,6 +143,24 @@ public class AccountFragment extends Fragment {
                 args.putParcelable("currentUser", currentUser);
                 changePasswordFragment.setArguments(args);
                 transaction.add(R.id.main_activity_layout, changePasswordFragment);
+                transaction.addToBackStack(null);
+                transaction.remove(AccountFragment.this);
+                transaction.commit();
+            }
+        });
+
+        homeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                HomeFragment homeFragment = new HomeFragment();
+                FirebaseAuth auth = FirebaseAuth.getInstance();
+                FirebaseUser currentUser = auth.getCurrentUser();
+                Bundle args = new Bundle();
+                args.putParcelable("currentUser", currentUser);
+                homeFragment.setArguments(args);
+                transaction.add(R.id.main_activity_layout, homeFragment);
                 transaction.addToBackStack(null);
                 transaction.remove(AccountFragment.this);
                 transaction.commit();
