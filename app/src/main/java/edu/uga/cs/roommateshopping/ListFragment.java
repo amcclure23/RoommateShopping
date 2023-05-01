@@ -323,11 +323,7 @@ public class ListFragment extends Fragment {
 
     private void delete(String item)
     {
-        databaseReference.collection("shopping list").document(item)
-                .delete()
-                .addOnSuccessListener((OnSuccessListener<Void>) aVoid -> Log.d(TAG, "DocumentSnapshot successfully deleted!"))
-                .addOnFailureListener((OnFailureListener) e -> Log.w(TAG, "Error deleting document", e));
-        rowNum--;
+
     }
 
 }
