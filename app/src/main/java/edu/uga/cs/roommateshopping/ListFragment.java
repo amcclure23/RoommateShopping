@@ -36,20 +36,57 @@ public class ListFragment extends Fragment {
     private Button addB, editB, deleteB, boughtB, doneB;
     private TableLayout itemlist;
     private int rowNum = 0;
-   private FirebaseAuth mAuth;
    private String action;
    private int checked = 0;
     FirebaseDatabase firebaseDatabase;
     DatabaseReference databaseReference;
 
+   private FirebaseUser firebaseUser;
+    private FirebaseAuth auth;
+    private FirebaseDatabase database;
+    private DatabaseReference userRef;
+    private User user;
+    private FloatingActionButton menuButton;
+
+    public ListFragment() {
+        // Required empty public constructor
+    }
+
+    public static ListFragment newInstance(FirebaseUser user) {
+        ListFragment fragment = new ListFragment();
+        Bundle args = new Bundle();
+        args.putParcelable("currentUser", user);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            firebaseUser = getArguments().getParcelable("currentUser");
+            System.out.println(firebaseUser.getUid());
+            database = FirebaseDatabase.getInstance();
+            auth = FirebaseAuth.getInstance();
 
-        // Get Firebase authentication instance
-        mAuth = FirebaseAuth.getInstance();
-        firebaseDatabase = FirebaseDatabase.getInstance();
-        databaseReference = firebaseDatabase.getReference("Data");
+            databaseReference = firebaseDatabase.getReference("ShoppingList");
+            userRef = FirebaseDatabase.getInstance().getReference("users");
+            userRef.child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        user = snapshot.getValue(User.class);
+                        assert user != null;
+                        System.out.println("User was found!");
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    System.err.println("User not found.");
+                }
+            });
+        }
     }
 
     @Override
