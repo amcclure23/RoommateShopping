@@ -1,5 +1,6 @@
 package edu.uga.cs.roommateshopping;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -57,6 +58,7 @@ public class HomeFragment extends Fragment {
 
     private LinearLayout shoppingListContainer;
     private DatabaseReference shoppingListRef;
+    private Context mContext;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -211,11 +213,13 @@ public class HomeFragment extends Fragment {
         shoppingListRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                shoppingListContainer.removeAllViews();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     ShoppingList shoppingList = snapshot.getValue(ShoppingList.class);
                     String listID = snapshot.getKey();
                     if (shoppingList != null && (shoppingList.getOwnerID().equals(firebaseUser.getUid()) || shoppingList.getRoommates().contains(firebaseUser.getUid()))) {
-                        addShoppingListEntry(shoppingList, listID);
+                        View entryView = addShoppingListEntry(shoppingList, listID);
+                        shoppingListContainer.addView(entryView);
                     }
                 }
             }
@@ -227,7 +231,9 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private void addShoppingListEntry(ShoppingList shoppingList, String listID) {
+    private View addShoppingListEntry(ShoppingList shoppingList, String listID) {
+        LinearLayout entryLayout = new LinearLayout(getContext());
+        entryLayout.setOrientation(LinearLayout.VERTICAL);
         TextView listName = new TextView(getContext());
         listName.setText(shoppingList.getName());
         listName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
@@ -241,7 +247,7 @@ public class HomeFragment extends Fragment {
         listNameParams.setMargins(0, 0, 0, listNameMargin);
         listName.setLayoutParams(listNameParams);
 
-        shoppingListContainer.addView(listName);
+        entryLayout.addView(listName);
 
         Button openButton = new Button(getContext());
         openButton.setText("Open");
@@ -266,7 +272,21 @@ public class HomeFragment extends Fragment {
         openButtonParams.setMargins(0, 0, 0, openButtonMargin);
         openButton.setLayoutParams(openButtonParams);
 
-        shoppingListContainer.addView(openButton);
+        entryLayout.addView(openButton);
+        return entryLayout;
+    }
+
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mContext = context;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mContext = null;
     }
 
 }
