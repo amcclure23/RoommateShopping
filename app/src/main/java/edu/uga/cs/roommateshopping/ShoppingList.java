@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 public class ShoppingList implements Parcelable {
 
+    private String name;
     private ArrayList<String> unpurchasedItems;
     private ArrayList<String> purchasedItems;
     private String ownerID;
@@ -17,6 +18,10 @@ public class ShoppingList implements Parcelable {
 
     public ShoppingList() {
         // Default constructor required for calls to DataSnapshot.getValue(ShoppingList.class)
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setUnpurchasedItems(ArrayList<String> unpurchasedItems) {
@@ -33,6 +38,10 @@ public class ShoppingList implements Parcelable {
 
     public void setRoommatesID(ArrayList<String> roommates) {
         this.roommates = roommates;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public ArrayList<String> getUnpurchasedItems() {

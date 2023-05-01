@@ -180,12 +180,15 @@ public class HomeFragment extends Fragment {
                 if (TextUtils.isEmpty(shoppingListName)) {
                     Toast.makeText(getContext(), "Please enter a shopping list name.", Toast.LENGTH_SHORT).show();
                 } else {
-                    DatabaseReference shoppingListRef = database.getReference("shopping_list");
+                    DatabaseReference shoppingListRef = database.getReference("shopping_lists");
+                    ArrayList<String> initialList = new ArrayList<>();
+                    initialList.add("");
                     ShoppingList newShoppingList = new ShoppingList();
+                    newShoppingList.setName(input.getText().toString());
                     newShoppingList.setOwnerID(firebaseUser.getUid());
-                    newShoppingList.setUnpurchasedItems(new ArrayList<>());
-                    newShoppingList.setPurchasedItems(new ArrayList<>());
-                    newShoppingList.setRoommatesID(new ArrayList<>());
+                    newShoppingList.setUnpurchasedItems(initialList);
+                    newShoppingList.setPurchasedItems(initialList);
+                    newShoppingList.setRoommatesID(initialList);
                     shoppingListRef.push().setValue(newShoppingList);
 
                     alertDialog.dismiss();
