@@ -145,6 +145,7 @@ public class ListFragment extends Fragment {
                     unpurchasedDBRReference.child(edititem.getText().toString()).removeValue();
                     itemlist.removeView(row);
                     rowNum--;
+                    removeDatafromFirebase(edititem.getText().toString(), i);
                 }
             }
         });
@@ -268,11 +269,26 @@ public class ListFragment extends Fragment {
                 if (TextUtils.isEmpty(shoppingListName)) {
                     Toast.makeText(getContext(), "Please enter an item.", Toast.LENGTH_SHORT).show();
                 } else {
+                    DatabaseReference shoppingListRef = database.getReference("shopping_lists");
+                    shoppingListRef.child(ShoppingListID).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if (snapshot.exists()) {
+                                ShoppingList shoppingList = snapshot.getValue(ShoppingList.class);
+                                ArrayList<String> unpurchasedItems = shoppingList.getUnpurchasedItems();
+                                unpurchasedItems.set(prevIndex, input.getText().toString());
+                                shoppingList.setUnpurchasedItems(unpurchasedItems);
+                                shoppingListRef.child(ShoppingListID).setValue(shoppingList);
+                                alertDialog.dismiss();
+                                Toast.makeText(getContext(), prev + " updated to " + input.getText().toString(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
 
-                    removeDatafromFirebase(prev, prevIndex);
-                    addDatatoFirebase(input.getText().toString());
-                    alertDialog.dismiss();
-
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            // Handle errors if needed
+                        }
+                    });
                 }
             });
 
@@ -288,7 +304,7 @@ public class ListFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    ShoppingList shoppingList = snapshot.getValue(ShoppingList.class);
+                    shoppingList = snapshot.getValue(ShoppingList.class);
                     ArrayList<String> unpurchasedItems = shoppingList.getUnpurchasedItems();
                     unpurchasedItems.remove(prevIndex);
                     shoppingList.setUnpurchasedItems(unpurchasedItems);
