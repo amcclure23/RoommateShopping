@@ -10,7 +10,8 @@ import java.util.ArrayList;
 public class ShoppingList implements Parcelable {
 
     private String name;
-    private ArrayList<String> unpurchasedItems;
+    ArrayList<String> unpurchasedItems;
+    private ArrayList<String> shoppingCart;
     private ArrayList<String> purchasedItems;
     private String ownerID;
     private ArrayList<String> roommates;
@@ -27,7 +28,9 @@ public class ShoppingList implements Parcelable {
     public void setUnpurchasedItems(ArrayList<String> unpurchasedItems) {
         this.unpurchasedItems = unpurchasedItems;
     }
-
+    public void setShoppingCart(ArrayList<String> shoppingCart) {
+        this.shoppingCart = shoppingCart;
+    }
     public void setPurchasedItems(ArrayList<String> purchasedItems) {
         this.purchasedItems = purchasedItems;
     }
@@ -48,6 +51,9 @@ public class ShoppingList implements Parcelable {
         return unpurchasedItems;
     }
 
+    public ArrayList<String> getShoppingCart() {
+        return shoppingCart;
+    }
     public ArrayList<String> getPurchasedItems() {
         return purchasedItems;
     }
@@ -63,6 +69,7 @@ public class ShoppingList implements Parcelable {
     // implement the Parcelable interface
     protected ShoppingList(Parcel in) {
         in.readList(unpurchasedItems, String.class.getClassLoader());
+        in.readList(shoppingCart, String.class.getClassLoader());
         in.readList(purchasedItems, String.class.getClassLoader());
         ownerID = in.readString();
         in.readList(roommates, String.class.getClassLoader());
@@ -88,6 +95,7 @@ public class ShoppingList implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeList(unpurchasedItems);
+        dest.writeList(shoppingCart);
         dest.writeList(purchasedItems);
         dest.writeString(ownerID);
         dest.writeList(roommates);

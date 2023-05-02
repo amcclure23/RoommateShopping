@@ -1,6 +1,7 @@
 package edu.uga.cs.roommateshopping;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -48,8 +49,8 @@ public class ListFragment extends Fragment {
     private Button addB, editB, deleteB, boughtB, doneB;
     private TableLayout itemlist;
     private int rowNum = 0;
-   private String action;
    private int checked = 0;
+    private ShoppingList shoppingList;
 
     private FirebaseUser firebaseUser;
     private FirebaseAuth auth;
@@ -58,6 +59,7 @@ public class ListFragment extends Fragment {
     private DatabaseReference unpurchasedDBRReference;
     private String ShoppingListID;
     private User user;
+    private DatabaseReference ShoppingListDBRReference;
 
 
     public ListFragment() {
@@ -82,7 +84,8 @@ public class ListFragment extends Fragment {
             database = FirebaseDatabase.getInstance();
             auth = FirebaseAuth.getInstance();
             databaseReference = FirebaseDatabase.getInstance().getReference("users");
-            unpurchasedDBRReference = database.getReference("shopping_lists").child(ShoppingListID).child("unpurchasedItems/");
+            ShoppingListDBRReference = database.getReference("shopping_lists").child(ShoppingListID);
+            unpurchasedDBRReference = database.getReference("shopping_lists").child(ShoppingListID).child("unpurchasedItems");
             databaseReference.child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -127,9 +130,7 @@ public class ListFragment extends Fragment {
             transaction.remove(ListFragment.this);
             transaction.commit();
         });
-        editB.setOnClickListener(v -> {
-            editItem();
-        });
+        editB.setOnClickListener(v -> {    editItem();  });
         deleteB.setOnClickListener(view1 -> {
             View tableview;
             TableRow row = new TableRow(itemlist.getContext());
@@ -159,7 +160,7 @@ public class ListFragment extends Fragment {
                 if (box.isChecked()) {
                     edititem = (EditText) row.getChildAt(1);
                     addDatatoFirebase(edititem.getText().toString());
-                    delete(edititem.getText().toString());
+                //    delete(edititem.getText().toString());
                     itemlist.removeView(row);
                     rowNum--;
                 }
@@ -282,40 +283,50 @@ public class ListFragment extends Fragment {
 
     private void addDatatoFirebase(String item) {
 
-        // we are use add value event listener method
+        // we use add value event listener method
         // which is called with database reference.
-        unpurchasedDBRReference.addValueEventListener(new ValueEventListener() {
+        DatabaseReference shoppingListRef = database.getReference("shopping_lists");
+        shoppingListRef.child(ShoppingListID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                // inside the method of on Data change we are setting
-                // our object class to our database reference.
-                // data base reference will sends data to firebase.
+                if (snapshot.exists()) {
+                    ShoppingList shoppingList = snapshot.getValue(ShoppingList.class);
+                    ArrayList<String> unpurchasedItems = shoppingList.getUnpurchasedItems();
+                    unpurchasedItems.add(item);
+                    shoppingList.setUnpurchasedItems(unpurchasedItems);
+                    shoppingListRef.child(ShoppingListID).setValue(shoppingList);
+                 //   Toast.makeText(itemlist.getContext(), item + " added", Toast.LENGTH_SHORT).show();
 
-                unpurchasedDBRReference.child(item).setValue(item);
 
-                // after adding this data we are showing toast message.
-                Toast.makeText(itemlist.getContext(), item+" added", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                // if the data is not added or it is cancelled then
-                // we are displaying a failure toast message.
-                Toast.makeText(itemlist.getContext(), "Fail to add data " + error, Toast.LENGTH_SHORT).show();
+                // Handle errors if needed
             }
         });
+                    // after adding this data we are showing toast message.
+
+
+
     }
     private void getdata() {
 
         // calling add value event listener method
         // for getting the values from database.
-        unpurchasedDBRReference.addValueEventListener(new ValueEventListener() {
+        ShoppingListDBRReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                for(DataSnapshot postSnapshot : snapshot.getChildren()){
-                    if(!postSnapshot.getKey().equals("0"))
-                    addItemToTable( postSnapshot.getValue(String.class));
+                shoppingList = snapshot.getValue(ShoppingList.class);
+                if (shoppingList != null) {
+                    ArrayList<String> unpurchaseditems = shoppingList.getUnpurchasedItems();
+                    rowNum = 0;
+                    for (String s : unpurchaseditems) {
+                        if(!s.equals("")) {
+                            addItemToTable(s);
+                        }
+                    }
                 }
             }
             @Override
@@ -423,9 +434,5 @@ public class ListFragment extends Fragment {
         doneB.setBackgroundColor(Color.BLUE);
     }
 
-    private void delete(String item)
-    {
-
-    }
 
 }

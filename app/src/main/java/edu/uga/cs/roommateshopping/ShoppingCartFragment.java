@@ -1,6 +1,5 @@
 package edu.uga.cs.roommateshopping;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
@@ -36,14 +35,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.Date;
-
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link BoughtFragment#newInstance} factory method to
+ * Use the {@link ShoppingCartFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class BoughtFragment extends Fragment {
+public class ShoppingCartFragment extends Fragment {
 
 
     private Button purchase, editB, deleteB,  doneB;
@@ -60,12 +57,12 @@ public class BoughtFragment extends Fragment {
     private User user;
 
 
-    public BoughtFragment() {
+    public ShoppingCartFragment() {
         // Required empty public constructor
     }
 
-    public static BoughtFragment newInstance(FirebaseUser user, String listID) {
-        BoughtFragment fragment = new BoughtFragment();
+    public static ShoppingCartFragment newInstance(FirebaseUser user, String listID) {
+        ShoppingCartFragment fragment = new ShoppingCartFragment();
         Bundle args = new Bundle();
         args.putParcelable("currentUser", user);
         args.putString("ShoppingListID", listID);
@@ -122,7 +119,7 @@ public class BoughtFragment extends Fragment {
             args.putParcelable("currentUser", firebaseUser);
             listFragment.setArguments(args);
             transaction.add(R.id.main_activity_layout, listFragment);
-            transaction.remove(BoughtFragment.this);
+            transaction.remove(ShoppingCartFragment.this);
             transaction.commit();
         });
         editB.setOnClickListener(v -> {

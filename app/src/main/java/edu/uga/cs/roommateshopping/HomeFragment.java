@@ -251,6 +251,7 @@ public class HomeFragment extends Fragment {
 
         Button openButton = new Button(getContext());
         openButton.setText("Open");
+        openButton.setBackgroundColor(Color.BLUE);
         openButton.setOnClickListener(v -> {
             FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
