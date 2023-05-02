@@ -318,6 +318,7 @@ public class ListFragment extends Fragment {
         ShoppingListDBRReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                itemlist.removeAllViews();
                 shoppingList = snapshot.getValue(ShoppingList.class);
                 if (shoppingList != null) {
                     ArrayList<String> unpurchaseditems = shoppingList.getUnpurchasedItems();
