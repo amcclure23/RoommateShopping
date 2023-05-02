@@ -224,7 +224,7 @@ public class ListFragment extends Fragment {
         alertDialog.show();
     }
 
-    private void changeItem(String prev){
+    private void changeItem(String prev, int prevIndex){
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Edit item");
 
@@ -241,7 +241,7 @@ public class ListFragment extends Fragment {
         container.addView(input);
         builder.setView(container);
 
-        builder.setPositiveButton("Create", null);
+        builder.setPositiveButton("edit", null);
         builder.setNegativeButton("Cancel", null);
 
         AlertDialog alertDialog = builder.create();
@@ -268,7 +268,9 @@ public class ListFragment extends Fragment {
                 if (TextUtils.isEmpty(shoppingListName)) {
                     Toast.makeText(getContext(), "Please enter an item.", Toast.LENGTH_SHORT).show();
                 } else {
-                    unpurchasedDBRReference.child(prev).setValue(input.getText().toString());
+
+                    removeDatafromFirebase(prev, prevIndex);
+                    addDatatoFirebase(input.getText().toString());
                     alertDialog.dismiss();
 
                 }
@@ -278,6 +280,28 @@ public class ListFragment extends Fragment {
         });
 
         alertDialog.show();
+    }
+
+    private void removeDatafromFirebase(String prev, int prevIndex) {
+        DatabaseReference shoppingListRef = database.getReference("shopping_lists");
+        shoppingListRef.child(ShoppingListID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    ShoppingList shoppingList = snapshot.getValue(ShoppingList.class);
+                    ArrayList<String> unpurchasedItems = shoppingList.getUnpurchasedItems();
+                    unpurchasedItems.remove(prevIndex);
+                    shoppingList.setUnpurchasedItems(unpurchasedItems);
+                    shoppingListRef.child(ShoppingListID).setValue(shoppingList);
+                    Toast.makeText(itemlist.getContext(), prev + " removed", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Handle errors if needed
+            }
+        });
     }
 
 
@@ -295,8 +319,7 @@ public class ListFragment extends Fragment {
                     unpurchasedItems.add(item);
                     shoppingList.setUnpurchasedItems(unpurchasedItems);
                     shoppingListRef.child(ShoppingListID).setValue(shoppingList);
-                 //   Toast.makeText(itemlist.getContext(), item + " added", Toast.LENGTH_SHORT).show();
-
+                    Toast.makeText(itemlist.getContext(), item + " added", Toast.LENGTH_SHORT).show();
 
                 }
             }
@@ -306,9 +329,6 @@ public class ListFragment extends Fragment {
                 // Handle errors if needed
             }
         });
-                    // after adding this data we are showing toast message.
-
-
 
     }
     private void getdata() {
@@ -416,7 +436,7 @@ public class ListFragment extends Fragment {
             box =(CheckBox) row.getChildAt(0);
             if (box.isChecked()) {
                 edititem = (TextView) row.getChildAt(1);
-                changeItem(edititem.getText().toString());
+                changeItem(edititem.getText().toString(), i );
                 break;
             }
         }
