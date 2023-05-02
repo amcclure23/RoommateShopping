@@ -142,9 +142,6 @@ public class ListFragment extends Fragment {
                 box =(CheckBox) row.getChildAt(0);
                 if (box.isChecked()) {
                     edititem = (TextView) row.getChildAt(1);
-                    unpurchasedDBRReference.child(edititem.getText().toString()).removeValue();
-                    itemlist.removeView(row);
-                    rowNum--;
                     removeDatafromFirebase(edititem.getText().toString(), i);
                 }
             }
@@ -153,19 +150,18 @@ public class ListFragment extends Fragment {
             View tableview;
             TableRow row = new TableRow(itemlist.getContext());
             CheckBox box;
-            EditText edititem;
+            TextView edititem;
             for (int i = 0; i < rowNum; i++) {
-                tableview = itemlist.getChildAt(rowNum);
+                tableview = itemlist.getChildAt(i);
                 row = (TableRow) tableview;
                 box =(CheckBox) row.getChildAt(0);
                 if (box.isChecked()) {
-                    edititem = (EditText) row.getChildAt(1);
-                    addDatatoFirebase(edititem.getText().toString());
-                //    delete(edititem.getText().toString());
-                    itemlist.removeView(row);
-                    rowNum--;
+                    box.setChecked(false);
+                    edititem = (TextView) row.getChildAt(1);
+                    addDatatoShoppingCart(edititem.getText().toString());
                 }
             }
+
         });
         return view;
     }
@@ -298,7 +294,7 @@ public class ListFragment extends Fragment {
         alertDialog.show();
     }
 
-    private void removeDatafromFirebase(String prev, int prevIndex) {
+    private void removeDatafromFirebase(String item, int itemIndex) {
         DatabaseReference shoppingListRef = database.getReference("shopping_lists");
         shoppingListRef.child(ShoppingListID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -306,10 +302,10 @@ public class ListFragment extends Fragment {
                 if (snapshot.exists()) {
                     shoppingList = snapshot.getValue(ShoppingList.class);
                     ArrayList<String> unpurchasedItems = shoppingList.getUnpurchasedItems();
-                    unpurchasedItems.remove(prevIndex);
+                    unpurchasedItems.remove(itemIndex);
                     shoppingList.setUnpurchasedItems(unpurchasedItems);
                     shoppingListRef.child(ShoppingListID).setValue(shoppingList);
-                    Toast.makeText(itemlist.getContext(), prev + " removed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(itemlist.getContext(),  item + " removed", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -337,6 +333,41 @@ public class ListFragment extends Fragment {
                     shoppingListRef.child(ShoppingListID).setValue(shoppingList);
                     Toast.makeText(itemlist.getContext(), item + " added", Toast.LENGTH_SHORT).show();
 
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Handle errors if needed
+            }
+        });
+
+    }
+    private void addDatatoShoppingCart(String item) {
+
+        // we use add value event listener method
+        // which is called with database reference.
+        DatabaseReference shoppingListRef = database.getReference("shopping_lists");
+        shoppingListRef.child(ShoppingListID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    shoppingList = snapshot.getValue(ShoppingList.class);
+                    ArrayList<String>  shoppingCart= shoppingList.getShoppingCart();
+                    shoppingCart.add(item);
+                    shoppingList.setShoppingCart(shoppingCart);
+                    shoppingListRef.child(ShoppingListID).setValue(shoppingList);
+                    //Toast.makeText(itemlist.getContext(), item + " added", Toast.LENGTH_SHORT).show();
+                    FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    ShoppingCartFragment shoppingCartFragment = new ShoppingCartFragment();
+                    Bundle args = new Bundle();
+                    args.putParcelable("currentUser", firebaseUser);
+                    args.putString("ShoppingListID", ShoppingListID);
+                    shoppingCartFragment.setArguments(args);
+                    transaction.add(R.id.main_activity_layout, shoppingCartFragment);
+                    transaction.remove(ListFragment.this);
+                    transaction.commit();
                 }
             }
 
@@ -399,20 +430,23 @@ public class ListFragment extends Fragment {
                                                 {
                                                     editB.setClickable(false);
                                                     editB.setBackgroundColor(Color.GRAY);
+                                                    deleteB.setClickable(false);
+                                                    deleteB.setBackgroundColor(Color.GRAY);
                                                     checked++;
                                                 }else if (!isChecked
                                                         && checked == 1)
                                                 {
                                                     editB.setClickable(false);
                                                     editB.setBackgroundColor(Color.GRAY);
-                                                    deleteB.setClickable(false);
-                                                    deleteB.setBackgroundColor(Color.GRAY);
+
                                                     boughtB.setClickable(false);
                                                     boughtB.setBackgroundColor(Color.GRAY);
                                                     checked--;
                                                 }else if (!isChecked
                                                        && checked == 2)
                                                 {
+                                                    deleteB.setClickable(false);
+                                                    deleteB.setBackgroundColor(Color.GRAY);
                                                     editB.setClickable(true);
                                                     editB.setBackgroundColor(Color.BLUE);
                                                     checked--;
@@ -451,6 +485,7 @@ public class ListFragment extends Fragment {
             row = (TableRow) tableview;
             box =(CheckBox) row.getChildAt(0);
             if (box.isChecked()) {
+                box.setChecked(false);
                 edititem = (TextView) row.getChildAt(1);
                 changeItem(edititem.getText().toString(), i );
                 break;

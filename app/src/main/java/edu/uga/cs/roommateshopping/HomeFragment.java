@@ -202,6 +202,7 @@ public class HomeFragment extends Fragment {
                     newShoppingList.setOwnerID(firebaseUser.getUid());
                     newShoppingList.setUnpurchasedItems(initialList);
                     newShoppingList.setPurchasedItems(initialList);
+                    newShoppingList.setShoppingCart(initialList);
                     newShoppingList.setRoommatesID(initialList);
                     shoppingListRef.push().setValue(newShoppingList);
 

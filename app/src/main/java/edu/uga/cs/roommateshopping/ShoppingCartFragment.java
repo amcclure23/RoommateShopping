@@ -35,6 +35,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link ShoppingCartFragment#newInstance} factory method to
@@ -48,13 +50,16 @@ public class ShoppingCartFragment extends Fragment {
     private int rowNum = 0;
     private int checked = 0;
 
+    private ShoppingList shoppingList;
+
     private FirebaseUser firebaseUser;
+    private FirebaseAuth auth;
     private FirebaseDatabase database;
     private DatabaseReference databaseReference; //user
     private DatabaseReference unpurchasedDBRReference;
     private String ShoppingListID;
-    private FirebaseAuth auth;
     private User user;
+    private DatabaseReference ShoppingListDBRReference;
 
 
     public ShoppingCartFragment() {
@@ -79,7 +84,8 @@ public class ShoppingCartFragment extends Fragment {
             database = FirebaseDatabase.getInstance();
             auth = FirebaseAuth.getInstance();
             databaseReference = FirebaseDatabase.getInstance().getReference("users");
-            unpurchasedDBRReference = database.getReference("shopping_lists").child(ShoppingListID).child("unpurchasedItems/");
+            ShoppingListDBRReference = database.getReference("shopping_lists").child(ShoppingListID);
+            unpurchasedDBRReference = database.getReference("shopping_lists").child(ShoppingListID).child("unpurchasedItems");
             databaseReference.child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -100,7 +106,7 @@ public class ShoppingCartFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_shoppingcart, container, false);
 
         // Get references to UI elements
 
@@ -111,6 +117,7 @@ public class ShoppingCartFragment extends Fragment {
 
         setUpButtons();
         getdata();
+
         doneB.setOnClickListener(v -> {
             FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -122,9 +129,7 @@ public class ShoppingCartFragment extends Fragment {
             transaction.remove(ShoppingCartFragment.this);
             transaction.commit();
         });
-        editB.setOnClickListener(v -> {
-            editItem();
-        });
+        editB.setOnClickListener(v -> {    editItem();  });
         deleteB.setOnClickListener(view1 -> {
             View tableview;
             TableRow row = new TableRow(itemlist.getContext());
@@ -136,82 +141,30 @@ public class ShoppingCartFragment extends Fragment {
                 box =(CheckBox) row.getChildAt(0);
                 if (box.isChecked()) {
                     edititem = (TextView) row.getChildAt(1);
-                    unpurchasedDBRReference.child(edititem.getText().toString()).removeValue();
-                    itemlist.removeView(row);
-                    rowNum--;
+                    removeDatafromFirebase(edititem.getText().toString(), i);
                 }
             }
         });
+
         return view;
     }
-
-    private void changeItem(String prev){
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Edit item");
-
-        final EditText input = new EditText(getContext());
-        input.setText(prev);
-        int editTextWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 300, getResources().getDisplayMetrics());
-        FrameLayout container = new FrameLayout(getContext());
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        container.setLayoutParams(params);
-        FrameLayout.LayoutParams editTextParams = new FrameLayout.LayoutParams(editTextWidth, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
-        int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, getResources().getDisplayMetrics());
-        editTextParams.setMargins(margin, 0, margin, 0);
-        input.setLayoutParams(editTextParams);
-        container.addView(input);
-        builder.setView(container);
-
-        builder.setPositiveButton("Create", null);
-        builder.setNegativeButton("Cancel", null);
-
-        AlertDialog alertDialog = builder.create();
-
-        alertDialog.setOnShowListener(dialog -> {
-            Button positiveButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
-            Button negativeButton = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-
-            LinearLayout.LayoutParams positiveButtonLayoutParams = (LinearLayout.LayoutParams) positiveButton.getLayoutParams();
-            LinearLayout.LayoutParams negativeButtonLayoutParams = (LinearLayout.LayoutParams) negativeButton.getLayoutParams();
-
-            positiveButtonLayoutParams.gravity = Gravity.CENTER_HORIZONTAL;
-            negativeButtonLayoutParams.gravity = Gravity.CENTER_HORIZONTAL;
-
-            int buttonMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
-            positiveButtonLayoutParams.setMargins(0, 0, buttonMargin, 0);
-            negativeButtonLayoutParams.setMargins(buttonMargin, 0, 0, 0);
-
-            positiveButton.setLayoutParams(positiveButtonLayoutParams);
-            negativeButton.setLayoutParams(negativeButtonLayoutParams);
-
-            positiveButton.setOnClickListener(v -> {
-                String shoppingListName = input.getText().toString();
-                if (TextUtils.isEmpty(shoppingListName)) {
-                    Toast.makeText(getContext(), "Please enter an item.", Toast.LENGTH_SHORT).show();
-                } else {
-                    unpurchasedDBRReference.child(prev).setValue(input.getText().toString());
-                    alertDialog.dismiss();
-
-                }
-            });
-
-            negativeButton.setOnClickListener(v -> alertDialog.dismiss());
-        });
-
-        alertDialog.show();
-    }
-
     private void getdata() {
 
         // calling add value event listener method
         // for getting the values from database.
-        unpurchasedDBRReference.addValueEventListener(new ValueEventListener() {
+        ShoppingListDBRReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                for(DataSnapshot postSnapshot : snapshot.getChildren()){
-                    if(!postSnapshot.getKey().equals("0"))
-                        addItemToTable( postSnapshot.getValue(String.class));
+                itemlist.removeAllViews();
+                shoppingList = snapshot.getValue(ShoppingList.class);
+                if (shoppingList != null) {
+                    ArrayList<String> unpurchaseditems = shoppingList.getUnpurchasedItems();
+                    rowNum = 0;
+                    for (String s : unpurchaseditems) {
+                        if(!s.equals("")) {
+                            addItemToTable(s);
+                        }
+                    }
                 }
             }
             @Override
@@ -245,18 +198,20 @@ public class ShoppingCartFragment extends Fragment {
                                                {
                                                    editB.setClickable(false);
                                                    editB.setBackgroundColor(Color.GRAY);
+                                                   deleteB.setClickable(false);
+                                                   deleteB.setBackgroundColor(Color.GRAY);
                                                    checked++;
                                                }else if (!isChecked
                                                        && checked == 1)
                                                {
                                                    editB.setClickable(false);
                                                    editB.setBackgroundColor(Color.GRAY);
-                                                   deleteB.setClickable(false);
-                                                   deleteB.setBackgroundColor(Color.GRAY);
                                                    checked--;
                                                }else if (!isChecked
                                                        && checked == 2)
                                                {
+                                                   deleteB.setClickable(false);
+                                                   deleteB.setBackgroundColor(Color.GRAY);
                                                    editB.setClickable(true);
                                                    editB.setBackgroundColor(Color.BLUE);
                                                    checked--;
@@ -295,8 +250,9 @@ public class ShoppingCartFragment extends Fragment {
             row = (TableRow) tableview;
             box =(CheckBox) row.getChildAt(0);
             if (box.isChecked()) {
+                box.setChecked(false);
                 edititem = (TextView) row.getChildAt(1);
-                changeItem(edititem.getText().toString());
+                changeItem(edititem.getText().toString(), i );
                 break;
             }
         }
@@ -305,13 +261,107 @@ public class ShoppingCartFragment extends Fragment {
     }
     private void setUpButtons()
     {
-
         editB.setClickable(false);
         editB.setBackgroundColor(Color.GRAY);
         deleteB.setClickable(false);
         deleteB.setBackgroundColor(Color.GRAY);
         doneB.setBackgroundColor(Color.BLUE);
     }
+    private void removeDatafromFirebase(String item, int itemIndex) {
+        DatabaseReference shoppingListRef = database.getReference("shopping_lists");
+        shoppingListRef.child(ShoppingListID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    shoppingList = snapshot.getValue(ShoppingList.class);
+                    ArrayList<String> unpurchasedItems = shoppingList.getUnpurchasedItems();
+                    unpurchasedItems.remove(itemIndex);
+                    shoppingList.setUnpurchasedItems(unpurchasedItems);
+                    shoppingListRef.child(ShoppingListID).setValue(shoppingList);
+                    Toast.makeText(itemlist.getContext(),  item + " removed", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Handle errors if needed
+            }
+        });
+    }
+    private void changeItem(String prev, int prevIndex){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Edit item");
+
+        final EditText input = new EditText(getContext());
+        input.setText(prev);
+        int editTextWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 300, getResources().getDisplayMetrics());
+        FrameLayout container = new FrameLayout(getContext());
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        container.setLayoutParams(params);
+        FrameLayout.LayoutParams editTextParams = new FrameLayout.LayoutParams(editTextWidth, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
+        int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, getResources().getDisplayMetrics());
+        editTextParams.setMargins(margin, 0, margin, 0);
+        input.setLayoutParams(editTextParams);
+        container.addView(input);
+        builder.setView(container);
+
+        builder.setPositiveButton("edit", null);
+        builder.setNegativeButton("Cancel", null);
+
+        AlertDialog alertDialog = builder.create();
+
+        alertDialog.setOnShowListener(dialog -> {
+            Button positiveButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+            Button negativeButton = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+
+            LinearLayout.LayoutParams positiveButtonLayoutParams = (LinearLayout.LayoutParams) positiveButton.getLayoutParams();
+            LinearLayout.LayoutParams negativeButtonLayoutParams = (LinearLayout.LayoutParams) negativeButton.getLayoutParams();
+
+            positiveButtonLayoutParams.gravity = Gravity.CENTER_HORIZONTAL;
+            negativeButtonLayoutParams.gravity = Gravity.CENTER_HORIZONTAL;
+
+            int buttonMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
+            positiveButtonLayoutParams.setMargins(0, 0, buttonMargin, 0);
+            negativeButtonLayoutParams.setMargins(buttonMargin, 0, 0, 0);
+
+            positiveButton.setLayoutParams(positiveButtonLayoutParams);
+            negativeButton.setLayoutParams(negativeButtonLayoutParams);
+
+            positiveButton.setOnClickListener(v -> {
+                String shoppingListName = input.getText().toString();
+                if (TextUtils.isEmpty(shoppingListName)) {
+                    Toast.makeText(getContext(), "Please enter an item.", Toast.LENGTH_SHORT).show();
+                } else {
+                    DatabaseReference shoppingListRef = database.getReference("shopping_lists");
+                    shoppingListRef.child(ShoppingListID).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if (snapshot.exists()) {
+                                ShoppingList shoppingList = snapshot.getValue(ShoppingList.class);
+                                ArrayList<String> unpurchasedItems = shoppingList.getUnpurchasedItems();
+                                unpurchasedItems.set(prevIndex, input.getText().toString());
+                                shoppingList.setUnpurchasedItems(unpurchasedItems);
+                                shoppingListRef.child(ShoppingListID).setValue(shoppingList);
+                                alertDialog.dismiss();
+                                Toast.makeText(getContext(), prev + " updated to " + input.getText().toString(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            // Handle errors if needed
+                        }
+                    });
+                }
+            });
+
+            negativeButton.setOnClickListener(v -> alertDialog.dismiss());
+        });
+
+        alertDialog.show();
+    }
+
+
 
 
 }
