@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -105,7 +106,6 @@ public class HomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         shoppingListContainer = view.findViewById(R.id.shopping_list_container);
         shoppingListRef = database.getReference("shopping_lists");
-        attachShoppingListListener();
         createShoppingListButton = view.findViewById(R.id.createShoppingListButton);
         createShoppingListButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -142,6 +142,12 @@ public class HomeFragment extends Fragment {
             popup.show();
         });
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        attachShoppingListListener();
     }
 
     private void showCreateListDialog() {
@@ -219,10 +225,13 @@ public class HomeFragment extends Fragment {
                     String listID = snapshot.getKey();
                     if (shoppingList != null && (shoppingList.getOwnerID().equals(firebaseUser.getUid()) || shoppingList.getRoommates().contains(firebaseUser.getUid()))) {
                         View entryView = addShoppingListEntry(shoppingList, listID);
-                        shoppingListContainer.addView(entryView);
+                        if (entryView != null) { // Check if the view is not null before adding it
+                            shoppingListContainer.addView(entryView);
+                        }
                     }
                 }
             }
+
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
@@ -232,6 +241,10 @@ public class HomeFragment extends Fragment {
     }
 
     private View addShoppingListEntry(ShoppingList shoppingList, String listID) {
+        if (!isAdded()) {
+            return null; // If the fragment is not attached to the activity, return null
+        }
+
         LinearLayout entryLayout = new LinearLayout(getContext());
         entryLayout.setOrientation(LinearLayout.VERTICAL);
         TextView listName = new TextView(getContext());
