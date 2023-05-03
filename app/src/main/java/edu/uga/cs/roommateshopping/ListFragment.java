@@ -438,15 +438,16 @@ public class ListFragment extends Fragment {
                                                 {
                                                     editB.setClickable(false);
                                                     editB.setBackgroundColor(Color.GRAY);
-
+                                                    deleteB.setClickable(false);
+                                                    deleteB.setBackgroundColor(Color.GRAY);
                                                     boughtB.setClickable(false);
                                                     boughtB.setBackgroundColor(Color.GRAY);
                                                     checked--;
                                                 }else if (!isChecked
                                                        && checked == 2)
                                                 {
-                                                    deleteB.setClickable(false);
-                                                    deleteB.setBackgroundColor(Color.GRAY);
+                                                    deleteB.setClickable(true);
+                                                    deleteB.setBackgroundColor(Color.BLUE);
                                                     editB.setClickable(true);
                                                     editB.setBackgroundColor(Color.BLUE);
                                                     checked--;
