@@ -56,7 +56,7 @@ public class ShoppingCartFragment extends Fragment {
     private FirebaseAuth auth;
     private FirebaseDatabase database;
     private DatabaseReference databaseReference; //user
-    private DatabaseReference unpurchasedDBRReference;
+    private DatabaseReference ShoppingCartDBRReference;
     private String ShoppingListID;
     private User user;
     private DatabaseReference ShoppingListDBRReference;
@@ -85,7 +85,7 @@ public class ShoppingCartFragment extends Fragment {
             auth = FirebaseAuth.getInstance();
             databaseReference = FirebaseDatabase.getInstance().getReference("users");
             ShoppingListDBRReference = database.getReference("shopping_lists").child(ShoppingListID);
-            unpurchasedDBRReference = database.getReference("shopping_lists").child(ShoppingListID).child("unpurchasedItems");
+            ShoppingCartDBRReference = database.getReference("shopping_lists").child(ShoppingListID).child("shoppingCart");
             databaseReference.child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -121,11 +121,11 @@ public class ShoppingCartFragment extends Fragment {
         doneB.setOnClickListener(v -> {
             FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
-            HomeFragment listFragment = new HomeFragment();
+            HomeFragment homeFragment = new HomeFragment();
             Bundle args = new Bundle();
             args.putParcelable("currentUser", firebaseUser);
-            listFragment.setArguments(args);
-            transaction.add(R.id.main_activity_layout, listFragment);
+            homeFragment.setArguments(args);
+            transaction.add(R.id.main_activity_layout, homeFragment);
             transaction.remove(ShoppingCartFragment.this);
             transaction.commit();
         });
@@ -158,9 +158,9 @@ public class ShoppingCartFragment extends Fragment {
                 itemlist.removeAllViews();
                 shoppingList = snapshot.getValue(ShoppingList.class);
                 if (shoppingList != null) {
-                    ArrayList<String> unpurchaseditems = shoppingList.getUnpurchasedItems();
+                    ArrayList<String> shoppingCart = shoppingList.getShoppingCart();
                     rowNum = 0;
-                    for (String s : unpurchaseditems) {
+                    for (String s : shoppingCart) {
                         if(!s.equals("")) {
                             addItemToTable(s);
                         }
@@ -274,9 +274,9 @@ public class ShoppingCartFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     shoppingList = snapshot.getValue(ShoppingList.class);
-                    ArrayList<String> unpurchasedItems = shoppingList.getUnpurchasedItems();
-                    unpurchasedItems.remove(itemIndex);
-                    shoppingList.setUnpurchasedItems(unpurchasedItems);
+                    ArrayList<String> shoppingCart = shoppingList.getShoppingCart();
+                    shoppingCart.remove(itemIndex);
+                    shoppingList.setShoppingCart(shoppingCart);
                     shoppingListRef.child(ShoppingListID).setValue(shoppingList);
                     Toast.makeText(itemlist.getContext(),  item + " removed", Toast.LENGTH_SHORT).show();
                 }
@@ -338,9 +338,9 @@ public class ShoppingCartFragment extends Fragment {
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             if (snapshot.exists()) {
                                 ShoppingList shoppingList = snapshot.getValue(ShoppingList.class);
-                                ArrayList<String> unpurchasedItems = shoppingList.getUnpurchasedItems();
-                                unpurchasedItems.set(prevIndex, input.getText().toString());
-                                shoppingList.setUnpurchasedItems(unpurchasedItems);
+                                ArrayList<String> shoppingCart = shoppingList.getShoppingCart();
+                                shoppingCart.set(prevIndex, input.getText().toString());
+                                shoppingList.setShoppingCart(shoppingCart);
                                 shoppingListRef.child(ShoppingListID).setValue(shoppingList);
                                 alertDialog.dismiss();
                                 Toast.makeText(getContext(), prev + " updated to " + input.getText().toString(), Toast.LENGTH_SHORT).show();
