@@ -1,5 +1,7 @@
 package edu.uga.cs.roommateshopping;
 
+import static android.util.TypedValue.COMPLEX_UNIT_SP;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -426,17 +428,24 @@ public class ListFragment extends Fragment {
         row.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
         CheckBox box = new CheckBox(itemlist.getContext());
         box.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+        box.setPadding(0,0,10,0);
         box.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
                                            @Override
                                            public void onCheckedChanged(CompoundButton buttonView,boolean isChecked) {
                                                 if(isChecked && checked == 0) {
+                                                    int widthInDp = 100;
+                                                    float scale = getResources().getDisplayMetrics().density;
+                                                    int widthInPx = (int) (widthInDp * scale + 0.5f);
                                                     editB.setClickable(true);
-                                                    editB.setBackgroundColor(Color.BLUE);
+                                                    editB.setBackgroundColor(Color.parseColor("#6200ee"));
+                                                    editB.setWidth(widthInPx);
                                                     deleteB.setClickable(true);
-                                                    deleteB.setBackgroundColor(Color.BLUE);
+                                                    deleteB.setBackgroundColor(Color.parseColor("#6200ee"));
+                                                    deleteB.setWidth(widthInPx);
                                                     boughtB.setClickable(true);
-                                                    boughtB.setBackgroundColor(Color.BLUE);
+                                                    boughtB.setBackgroundColor(Color.parseColor("#6200ee"));
+                                                    boughtB.setWidth(widthInPx);
                                                     checked++;
 
                                                 } else if (isChecked && checked == 1)
@@ -460,9 +469,9 @@ public class ListFragment extends Fragment {
                                                        && checked == 2)
                                                 {
                                                     deleteB.setClickable(true);
-                                                    deleteB.setBackgroundColor(Color.BLUE);
+                                                    deleteB.setBackgroundColor(Color.parseColor("#6200ee"));
                                                     editB.setClickable(true);
-                                                    editB.setBackgroundColor(Color.BLUE);
+                                                    editB.setBackgroundColor(Color.parseColor("#6200ee"));
                                                     checked--;
                                                 }else if (isChecked)
                                                 {
@@ -478,11 +487,14 @@ public class ListFragment extends Fragment {
 
         TextView name = new TextView(itemlist.getContext());
         name.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
+        TableRow.LayoutParams layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT);
+        layoutParams.gravity = Gravity.CENTER_VERTICAL;
         name.setPadding(5,5,5,0);
         name.setText(value);
+        name.setTextColor(Color.BLACK);
+        name.setTextSize(COMPLEX_UNIT_SP, 24);
         row.addView(box);
         row.addView(name);
-        row.setBackgroundColor(Color.GRAY);
         itemlist.addView(row, rowNum);
         rowNum++;
 
@@ -510,14 +522,14 @@ public class ListFragment extends Fragment {
     }
     private void setUpButtons()
     {
-        addB.setBackgroundColor(Color.BLUE);
+        addB.setBackgroundColor(Color.parseColor("#6200ee"));
         editB.setClickable(false);
         editB.setBackgroundColor(Color.GRAY);
         deleteB.setClickable(false);
         deleteB.setBackgroundColor(Color.GRAY);
         boughtB.setClickable(false);
         boughtB.setBackgroundColor(Color.GRAY);
-        doneB.setBackgroundColor(Color.BLUE);
+        doneB.setBackgroundColor(Color.parseColor("#6200ee"));
     }
 
 
