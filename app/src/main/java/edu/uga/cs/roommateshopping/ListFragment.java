@@ -46,7 +46,7 @@ public class ListFragment extends Fragment {
 
     String TAG = "listFragment";
 
-    private Button addB, editB, deleteB, boughtB, doneB;
+    private Button addB, editB, deleteB, boughtB, doneB, settle;
     private TableLayout itemlist;
     private int rowNum = 0;
    private int checked = 0;
@@ -115,6 +115,7 @@ public class ListFragment extends Fragment {
         boughtB = view.findViewById(R.id.boughtB);
         doneB = view.findViewById(R.id.doneB);
         itemlist = view.findViewById(R.id.itemlist);
+        settle = view.findViewById(R.id.settle);
 
         setUpButtons();
         getdata();
@@ -122,11 +123,23 @@ public class ListFragment extends Fragment {
         doneB.setOnClickListener(v -> {
             FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
-            HomeFragment listFragment = new HomeFragment();
+            HomeFragment homeFragment = new HomeFragment();
             Bundle args = new Bundle();
             args.putParcelable("currentUser", firebaseUser);
-            listFragment.setArguments(args);
-            transaction.add(R.id.main_activity_layout, listFragment);
+            homeFragment.setArguments(args);
+            transaction.add(R.id.main_activity_layout, homeFragment);
+            transaction.remove(ListFragment.this);
+            transaction.commit();
+        });
+        settle.setOnClickListener(v -> {
+            FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            SettleFragment settleFragment = new SettleFragment();
+            Bundle args = new Bundle();
+            args.putParcelable("currentUser", firebaseUser);
+            args.putString("ShoppingListID", ShoppingListID);
+            settleFragment.setArguments(args);
+            transaction.add(R.id.main_activity_layout, settleFragment);
             transaction.remove(ListFragment.this);
             transaction.commit();
         });
