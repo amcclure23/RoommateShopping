@@ -279,19 +279,23 @@ public class EditListInfoFragment extends Fragment {
 
 
     private void addRoommateEntry(User user) {
-        TextView roommateName = new TextView(getContext());
-        roommateName.setText(user.getFullName());
-        roommateName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-        roommateName.setTextColor(Color.BLACK);
+        if (!isAdded()) {
 
-        LinearLayout.LayoutParams listNameParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        );
-        int listNameMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
-        listNameParams.setMargins(0, 0, 0, listNameMargin);
-        roommateName.setLayoutParams(listNameParams);
+        } else {
+            TextView roommateName = new TextView(getContext());
+            roommateName.setText(user.getFullName());
+            roommateName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+            roommateName.setTextColor(Color.BLACK);
 
-        roommatesContainer.addView(roommateName);
+            LinearLayout.LayoutParams listNameParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            int listNameMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
+            listNameParams.setMargins(0, 0, 0, listNameMargin);
+            roommateName.setLayoutParams(listNameParams);
+
+            roommatesContainer.addView(roommateName);
+        }
     }
 }

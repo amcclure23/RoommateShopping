@@ -1,6 +1,7 @@
 package edu.uga.cs.roommateshopping;
 
 import static android.util.TypedValue.COMPLEX_UNIT_SP;
+import static android.view.Gravity.CENTER;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -9,8 +10,11 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -125,6 +129,7 @@ public class EditRoommatesFragment extends Fragment {
         addRoommatebutton = view.findViewById(R.id.addRoommates);
         removeRoommateButton = view.findViewById(R.id.removeRoommates);
         shoppingListName = view.findViewById(R.id.listNameTextView);
+        returnToSettingsButton = view.findViewById(R.id.returnToSettingsButton);
         setUpButtons();
         getData();
         addRoommatebutton.setOnClickListener(new View.OnClickListener() {
@@ -133,6 +138,28 @@ public class EditRoommatesFragment extends Fragment {
                 addRoommate();
             }
         });
+        removeRoommateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                removeRoommate();
+            }
+        });
+        returnToSettingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                EditListInfoFragment editListInfoFragment = new EditListInfoFragment();
+                Bundle args = new Bundle();
+                args.putParcelable("currentUser", firebaseUser);
+                args.putString("ShoppingListID", ShoppingListID);
+                editListInfoFragment.setArguments(args);
+                transaction.add(R.id.main_activity_layout, editListInfoFragment);
+                transaction.remove(EditRoommatesFragment.this);
+                transaction.commit();
+            }
+        });
+
         return view;
     }
 
@@ -145,8 +172,8 @@ public class EditRoommatesFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 roommateList.removeAllViews();
                 shoppingList = snapshot.getValue(ShoppingList.class);
-                shoppingListName.setText(shoppingList.getName());
                 if (shoppingList != null) {
+                    shoppingListName.setText(shoppingList.getName());
                     ArrayList<String> roommates = shoppingList.getRoommates();
                     DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users");
                     rowNum = 0;
@@ -357,7 +384,90 @@ public class EditRoommatesFragment extends Fragment {
                 // Handle errors if needed
             }
         });
-
     }
+
+    private void removeRoommate() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Enter roommate's full name to confirm");
+
+        final EditText input = new EditText(getContext());
+        input.setHint("Enter name...");
+        int editTextWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 300, getResources().getDisplayMetrics());
+        FrameLayout container = new FrameLayout(getContext());
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        container.setLayoutParams(params);
+        FrameLayout.LayoutParams editTextParams = new FrameLayout.LayoutParams(editTextWidth, ViewGroup.LayoutParams.WRAP_CONTENT, CENTER);
+        int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, getResources().getDisplayMetrics());
+        editTextParams.setMargins(margin, 0, margin, 0);
+        input.setLayoutParams(editTextParams);
+        container.addView(input);
+        builder.setView(container);
+        builder.setPositiveButton("Remove", null);
+        builder.setNegativeButton("Cancel", null);
+
+        AlertDialog alertDialog = builder.create();
+
+        alertDialog.setOnShowListener(dialog -> {
+            Button positiveButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+            Button negativeButton = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+
+            positiveButton.setOnClickListener(v -> {
+                String enteredName = input.getText().toString();
+                FirebaseDatabase.getInstance().getReference().child("users")
+                        .orderByChild("fullName") // Change this line to use the correct attribute name for full name in your database
+                        .equalTo(enteredName)
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.exists()) {
+                                    String userID = "";
+                                    for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                                        userID = userSnapshot.getKey();
+                                    }
+                                    removeDatatoFirebase(userID);
+                                    alertDialog.dismiss();
+                                } else {
+                                    Toast.makeText(getContext(), "The name you entered does not match any existing users.", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                                Toast.makeText(getContext(), "An error occurred. Please try again later.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            });
+
+            negativeButton.setOnClickListener(v -> alertDialog.dismiss());
+        });
+
+        alertDialog.show();
+    }
+
+    private void removeDatatoFirebase(String userID) {
+
+        // we use add value event listener method
+        // which is called with database reference.
+        DatabaseReference shoppingListRef = database.getReference("shopping_lists");
+        shoppingListRef.child(ShoppingListID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    ShoppingList shoppingList = snapshot.getValue(ShoppingList.class);
+                    ArrayList<String> roommates = shoppingList.getRoommates();
+                    roommates.remove(userID);
+                    shoppingList.setRoommatesID(roommates);
+                    shoppingListRef.child(ShoppingListID).setValue(shoppingList);
+                    Toast.makeText(roommateList.getContext(), userID + " removed", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Handle errors if needed
+            }
+        });
+    }
+
 
 }

@@ -497,7 +497,6 @@ public class ListFragment extends Fragment {
         row.addView(name);
         itemlist.addView(row, rowNum);
         rowNum++;
-
     }
 
     private TableRow editItem()
