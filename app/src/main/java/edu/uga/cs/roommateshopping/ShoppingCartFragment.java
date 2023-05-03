@@ -1,5 +1,7 @@
 package edu.uga.cs.roommateshopping;
 
+import static android.util.TypedValue.COMPLEX_UNIT_SP;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
@@ -189,9 +191,9 @@ public class ShoppingCartFragment extends Fragment {
                                            public void onCheckedChanged(CompoundButton buttonView,boolean isChecked) {
                                                if(isChecked && checked == 0) {
                                                    editB.setClickable(true);
-                                                   editB.setBackgroundColor(Color.BLUE);
+                                                   editB.setBackgroundColor(Color.parseColor("#6200ee"));
                                                    deleteB.setClickable(true);
-                                                   deleteB.setBackgroundColor(Color.BLUE);
+                                                   deleteB.setBackgroundColor(Color.parseColor("#6200ee"));
                                                    checked++;
 
                                                } else if (isChecked && checked == 1)
@@ -213,7 +215,7 @@ public class ShoppingCartFragment extends Fragment {
                                                    deleteB.setClickable(false);
                                                    deleteB.setBackgroundColor(Color.GRAY);
                                                    editB.setClickable(true);
-                                                   editB.setBackgroundColor(Color.BLUE);
+                                                   editB.setBackgroundColor(Color.parseColor("#6200ee"));
                                                    checked--;
                                                }else if (isChecked)
                                                {
@@ -229,11 +231,14 @@ public class ShoppingCartFragment extends Fragment {
 
         TextView name = new TextView(itemlist.getContext());
         name.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
+        TableRow.LayoutParams layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT);
+        layoutParams.gravity = Gravity.CENTER_VERTICAL;
         name.setPadding(5,5,5,0);
         name.setText(value);
+        name.setTextColor(Color.BLACK);
+        name.setTextSize(COMPLEX_UNIT_SP, 18);
         row.addView(box);
         row.addView(name);
-        row.setBackgroundColor(Color.GRAY);
         itemlist.addView(row, rowNum);
         rowNum++;
 
@@ -265,7 +270,7 @@ public class ShoppingCartFragment extends Fragment {
         editB.setBackgroundColor(Color.GRAY);
         deleteB.setClickable(false);
         deleteB.setBackgroundColor(Color.GRAY);
-        doneB.setBackgroundColor(Color.BLUE);
+        doneB.setBackgroundColor(Color.parseColor("#6200ee"));
     }
     private void removeDatafromFirebase(String item, int itemIndex) {
         DatabaseReference shoppingListRef = database.getReference("shopping_lists");
