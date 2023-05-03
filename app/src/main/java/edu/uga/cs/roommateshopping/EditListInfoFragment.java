@@ -55,7 +55,7 @@ public class EditListInfoFragment extends Fragment {
     private TextView shoppingListName;
 
     // Buttons
-    private Button editRoommatesButton, deleteListButton;
+    private Button editRoommatesButton, deleteListButton, returnToHomeButton;
     // Local User Info
     private User user;
 
@@ -117,12 +117,36 @@ public class EditListInfoFragment extends Fragment {
         shoppingListName = view.findViewById(R.id.listNameTextView);
         editRoommatesButton = view.findViewById(R.id.editRoommatesButton);
         deleteListButton = view.findViewById(R.id.deleteListButton);
+        returnToHomeButton = view.findViewById(R.id.returnToHomePageButton);
+        returnToHomeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                HomeFragment homeFragment = new HomeFragment();
+                Bundle args = new Bundle();
+                args.putParcelable("currentUser", firebaseUser);
+                homeFragment.setArguments(args);
+                transaction.add(R.id.main_activity_layout, homeFragment);
+                transaction.remove(EditListInfoFragment.this);
+                transaction.commit();
+            }
+        });
         roommateListRef = database.getReference("shopping_lists").child(ShoppingListID);
         attachRoommatesListener();
         editRoommatesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                EditRoommatesFragment editRoommatesFragment = new EditRoommatesFragment();
+                Bundle args = new Bundle();
+                args.putParcelable("currentUser", firebaseUser);
+                args.putString("ShoppingListID", ShoppingListID);
+                editRoommatesFragment.setArguments(args);
+                transaction.add(R.id.main_activity_layout, editRoommatesFragment);
+                transaction.remove(EditListInfoFragment.this);
+                transaction.commit();
             }
         });
         deleteListButton.setOnClickListener(new View.OnClickListener() {

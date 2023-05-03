@@ -51,7 +51,7 @@ public class ListFragment extends Fragment {
     private Button addB, editB, deleteB, boughtB, doneB, settle;
     private TableLayout itemlist;
     private int rowNum = 0;
-   private int checked = 0;
+    private int checked = 0;
     private ShoppingList shoppingList;
 
     private FirebaseUser firebaseUser;
@@ -492,7 +492,7 @@ public class ListFragment extends Fragment {
         name.setPadding(5,5,5,0);
         name.setText(value);
         name.setTextColor(Color.BLACK);
-        name.setTextSize(COMPLEX_UNIT_SP, 24);
+        name.setTextSize(COMPLEX_UNIT_SP, 18);
         row.addView(box);
         row.addView(name);
         itemlist.addView(row, rowNum);

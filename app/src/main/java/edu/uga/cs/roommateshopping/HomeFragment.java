@@ -1,8 +1,12 @@
 package edu.uga.cs.roommateshopping;
 
+import static android.view.Gravity.CENTER;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -160,7 +164,7 @@ public class HomeFragment extends Fragment {
         FrameLayout container = new FrameLayout(getContext());
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         container.setLayoutParams(params);
-        FrameLayout.LayoutParams editTextParams = new FrameLayout.LayoutParams(editTextWidth, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
+        FrameLayout.LayoutParams editTextParams = new FrameLayout.LayoutParams(editTextWidth, ViewGroup.LayoutParams.WRAP_CONTENT, CENTER);
         int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, getResources().getDisplayMetrics());
         editTextParams.setMargins(margin, 0, margin, 0);
         input.setLayoutParams(editTextParams);
@@ -196,7 +200,6 @@ public class HomeFragment extends Fragment {
                 } else {
                     DatabaseReference shoppingListRef = database.getReference("shopping_lists");
                     ArrayList<String> initialList = new ArrayList<>();
-                    initialList.add("");
                     ShoppingList newShoppingList = new ShoppingList();
                     newShoppingList.setName(input.getText().toString());
                     newShoppingList.setOwnerID(firebaseUser.getUid());
@@ -248,6 +251,7 @@ public class HomeFragment extends Fragment {
 
         LinearLayout entryLayout = new LinearLayout(getContext());
         entryLayout.setOrientation(LinearLayout.VERTICAL);
+
         TextView listName = new TextView(getContext());
         listName.setText(shoppingList.getName());
         listName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
@@ -263,18 +267,18 @@ public class HomeFragment extends Fragment {
 
         entryLayout.addView(listName);
 
+        LinearLayout buttonLayout = new LinearLayout(getContext());
+        buttonLayout.setOrientation(LinearLayout.HORIZONTAL);
+
         Button openButton = new Button(getContext());
         openButton.setText("Open");
         openButton.setOnClickListener(v -> {
             FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
-           // EditListInfoFragment editListInfoFragment = new EditListInfoFragment();
             ListFragment listFragment = new ListFragment();
             Bundle args = new Bundle();
             args.putParcelable("currentUser", firebaseUser);
             args.putString("ShoppingListID", listID);
-          //  editListInfoFragment.setArguments(args);
-          //  transaction.add(R.id.main_activity_layout, editListInfoFragment);
             listFragment.setArguments(args);
             transaction.add(R.id.main_activity_layout, listFragment);
             transaction.remove(HomeFragment.this);
@@ -282,15 +286,52 @@ public class HomeFragment extends Fragment {
         });
 
         LinearLayout.LayoutParams openButtonParams = new LinearLayout.LayoutParams(
+                0,
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+                1
         );
-        int openButtonMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, getResources().getDisplayMetrics());
-        openButtonParams.setMargins(0, 0, 0, openButtonMargin);
+        openButtonParams.setMargins(0, 0, 0, 0);
         openButton.setLayoutParams(openButtonParams);
 
-        entryLayout.addView(openButton);
+        buttonLayout.addView(openButton);
+
+        Button settingsButton = new Button(getContext());
+        Drawable gearIcon = getResources().getDrawable(R.drawable.ic_gear_icon_dark, null);
+        int iconSize = openButton.getHeight();
+        gearIcon.setBounds(0, 0, iconSize, iconSize);
+        LayerDrawable gearIconDrawable = new LayerDrawable(new Drawable[]{gearIcon});
+        gearIconDrawable.setBounds(0, 0, iconSize, iconSize);
+        settingsButton.setCompoundDrawablesWithIntrinsicBounds(gearIconDrawable, null, null, null);
+        settingsButton.setGravity(CENTER);
+        settingsButton.setOnClickListener(v -> {
+            FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            EditListInfoFragment editListInfoFragment = new EditListInfoFragment();
+            Bundle args = new Bundle();
+            args.putParcelable("currentUser", firebaseUser);
+            args.putString("ShoppingListID", listID);
+            editListInfoFragment.setArguments(args);
+            transaction.add(R.id.main_activity_layout, editListInfoFragment);
+            transaction.remove(HomeFragment.this);
+            transaction.commit();
+        });
+
+        LinearLayout.LayoutParams settingsButtonParams = new LinearLayout.LayoutParams(
+                0,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                0.17f
+        );
+        int settingsButtonMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
+        settingsButtonParams.setMargins(settingsButtonMargin, 0, 0, 0);
+        settingsButton.setLayoutParams(settingsButtonParams);
+
+
+        buttonLayout.addView(settingsButton);
+
+        entryLayout.addView(buttonLayout);
+
         return entryLayout;
+
     }
 
 
