@@ -6,13 +6,14 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ShoppingList implements Parcelable {
 
     private String name;
-    ArrayList<String> unpurchasedItems;
+    private ArrayList<String> unpurchasedItems;
     private ArrayList<String> shoppingCart;
-    private ArrayList<String> purchasedItems;
+    private ArrayList<PurchasedItems> purchasedItems;
     private String ownerID;
     private ArrayList<String> roommates;
 
@@ -31,7 +32,7 @@ public class ShoppingList implements Parcelable {
     public void setShoppingCart(ArrayList<String> shoppingCart) {
         this.shoppingCart = shoppingCart;
     }
-    public void setPurchasedItems(ArrayList<String> purchasedItems) {
+    public void setPurchasedItems(ArrayList<PurchasedItems> purchasedItems) {
         this.purchasedItems = purchasedItems;
     }
 
@@ -54,7 +55,7 @@ public class ShoppingList implements Parcelable {
     public ArrayList<String> getShoppingCart() {
         return shoppingCart;
     }
-    public ArrayList<String> getPurchasedItems() {
+    public ArrayList<PurchasedItems> getPurchasedItems() {
         return purchasedItems;
     }
 
@@ -70,7 +71,7 @@ public class ShoppingList implements Parcelable {
     protected ShoppingList(Parcel in) {
         in.readList(unpurchasedItems, String.class.getClassLoader());
         in.readList(shoppingCart, String.class.getClassLoader());
-        in.readList(purchasedItems, String.class.getClassLoader());
+        in.readList(purchasedItems, PurchasedItems.class.getClassLoader());
         ownerID = in.readString();
         in.readList(roommates, String.class.getClassLoader());
     }
@@ -96,7 +97,7 @@ public class ShoppingList implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeList(unpurchasedItems);
         dest.writeList(shoppingCart);
-        dest.writeList(purchasedItems);
+        dest.writeTypedList(purchasedItems);
         dest.writeString(ownerID);
         dest.writeList(roommates);
     }

@@ -43,6 +43,7 @@ import android.view.Gravity;
 import android.widget.FrameLayout;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -200,11 +201,15 @@ public class HomeFragment extends Fragment {
                 } else {
                     DatabaseReference shoppingListRef = database.getReference("shopping_lists");
                     ArrayList<String> initialList = new ArrayList<>();
+                    ArrayList<PurchasedItems> initialPurchasedItemsList = new ArrayList<>();
+                    PurchasedItems initialPurchase = new PurchasedItems();
+                    initialList.add("");
+                    initialPurchasedItemsList.add(initialPurchase);
                     ShoppingList newShoppingList = new ShoppingList();
                     newShoppingList.setName(input.getText().toString());
                     newShoppingList.setOwnerID(firebaseUser.getUid());
                     newShoppingList.setUnpurchasedItems(initialList);
-                    newShoppingList.setPurchasedItems(initialList);
+                    newShoppingList.setPurchasedItems(initialPurchasedItemsList);
                     newShoppingList.setShoppingCart(initialList);
                     newShoppingList.setRoommatesID(initialList);
                     shoppingListRef.push().setValue(newShoppingList);

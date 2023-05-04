@@ -162,21 +162,34 @@ public class ListFragment extends Fragment {
             }
         });
         boughtB.setOnClickListener(view12 -> {
+            ArrayList<String> checkedItems = new ArrayList<>();
             View tableview;
-            TableRow row = new TableRow(itemlist.getContext());
+            TableRow row;
             CheckBox box;
             TextView edititem;
             for (int i = 0; i < rowNum; i++) {
                 tableview = itemlist.getChildAt(i);
                 row = (TableRow) tableview;
-                box =(CheckBox) row.getChildAt(0);
+                box = (CheckBox) row.getChildAt(0);
                 if (box.isChecked()) {
                     box.setChecked(false);
                     edititem = (TextView) row.getChildAt(1);
-                    addDatatoShoppingCart(edititem.getText().toString());
+                    checkedItems.add(edititem.getText().toString());
                 }
             }
-
+            if (!checkedItems.isEmpty()) {
+                addDatatoShoppingCart(checkedItems);
+            }
+            FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            ShoppingCartFragment shoppingCartFragment = new ShoppingCartFragment();
+            Bundle args = new Bundle();
+            args.putParcelable("currentUser", firebaseUser);
+            args.putString("ShoppingListID", ShoppingListID);
+            shoppingCartFragment.setArguments(args);
+            transaction.add(R.id.main_activity_layout, shoppingCartFragment);
+            transaction.remove(ListFragment.this);
+            transaction.commit();
         });
         return view;
     }
@@ -358,31 +371,18 @@ public class ListFragment extends Fragment {
         });
 
     }
-    private void addDatatoShoppingCart(String item) {
-
-        // we use add value event listener method
-        // which is called with database reference.
+    private void addDatatoShoppingCart(ArrayList<String> items) {
         DatabaseReference shoppingListRef = database.getReference("shopping_lists");
         shoppingListRef.child(ShoppingListID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     shoppingList = snapshot.getValue(ShoppingList.class);
-                    ArrayList<String>  shoppingCart= shoppingList.getShoppingCart();
-                    shoppingCart.add(item);
+                    ArrayList<String> shoppingCart = shoppingList.getShoppingCart();
+                    shoppingCart.addAll(items);
                     shoppingList.setShoppingCart(shoppingCart);
                     shoppingListRef.child(ShoppingListID).setValue(shoppingList);
-                    //Toast.makeText(itemlist.getContext(), item + " added", Toast.LENGTH_SHORT).show();
-                    FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-                    FragmentTransaction transaction = fragmentManager.beginTransaction();
-                    ShoppingCartFragment shoppingCartFragment = new ShoppingCartFragment();
-                    Bundle args = new Bundle();
-                    args.putParcelable("currentUser", firebaseUser);
-                    args.putString("ShoppingListID", ShoppingListID);
-                    shoppingCartFragment.setArguments(args);
-                    transaction.add(R.id.main_activity_layout, shoppingCartFragment);
-                    transaction.remove(ListFragment.this);
-                    transaction.commit();
+                    Toast.makeText(itemlist.getContext(), items.size() + " items added", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -391,7 +391,6 @@ public class ListFragment extends Fragment {
                 // Handle errors if needed
             }
         });
-
     }
     private void getdata() {
 

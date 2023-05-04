@@ -21,7 +21,7 @@ import com.google.firebase.database.ValueEventListener;
 
 public class SettleFragment extends Fragment {
     private ShoppingList shoppingList;
-    private Purchase purchase;
+    private PurchasedItems purchase;
     private Button done, list, settleCost;
     private FirebaseUser firebaseUser;
     private FirebaseAuth auth;
