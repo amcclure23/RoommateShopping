@@ -156,8 +156,9 @@ public class ListFragment extends Fragment {
                 row = (TableRow) tableview;
                 box =(CheckBox) row.getChildAt(0);
                 if (box.isChecked()) {
+                    box.setChecked(false);
                     edititem = (TextView) row.getChildAt(1);
-                    removeDatafromFirebase(edititem.getText().toString(), i);
+                    removeDatafromFirebase(edititem.getText().toString());
                 }
             }
         });
@@ -249,7 +250,7 @@ public class ListFragment extends Fragment {
         alertDialog.show();
     }
 
-    private void changeItem(String prev, int prevIndex){
+    private void changeItem(String prev) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Edit item");
 
@@ -300,11 +301,16 @@ public class ListFragment extends Fragment {
                             if (snapshot.exists()) {
                                 ShoppingList shoppingList = snapshot.getValue(ShoppingList.class);
                                 ArrayList<String> unpurchasedItems = shoppingList.getUnpurchasedItems();
-                                unpurchasedItems.set(prevIndex, input.getText().toString());
-                                shoppingList.setUnpurchasedItems(unpurchasedItems);
-                                shoppingListRef.child(ShoppingListID).setValue(shoppingList);
-                                alertDialog.dismiss();
-                                Toast.makeText(getContext(), prev + " updated to " + input.getText().toString(), Toast.LENGTH_SHORT).show();
+                                if (unpurchasedItems.contains(prev)) {
+                                    int prevIndex = unpurchasedItems.indexOf(prev);
+                                    unpurchasedItems.set(prevIndex, input.getText().toString());
+                                    shoppingList.setUnpurchasedItems(unpurchasedItems);
+                                    shoppingListRef.child(ShoppingListID).setValue(shoppingList);
+                                    alertDialog.dismiss();
+
+                                    Toast.makeText(getContext(), prev + " updated to " + input.getText().toString(), Toast.LENGTH_SHORT).show();
+                                }
+
                             }
                         }
 
@@ -322,7 +328,7 @@ public class ListFragment extends Fragment {
         alertDialog.show();
     }
 
-    private void removeDatafromFirebase(String item, int itemIndex) {
+    private void removeDatafromFirebase(String item) {
         DatabaseReference shoppingListRef = database.getReference("shopping_lists");
         shoppingListRef.child(ShoppingListID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -330,9 +336,15 @@ public class ListFragment extends Fragment {
                 if (snapshot.exists()) {
                     shoppingList = snapshot.getValue(ShoppingList.class);
                     ArrayList<String> unpurchasedItems = shoppingList.getUnpurchasedItems();
-                    unpurchasedItems.remove(itemIndex);
+                    unpurchasedItems.remove(item);
+                    if (unpurchasedItems.size() == 0) {
+                        unpurchasedItems.add("");
+                    }
                     shoppingList.setUnpurchasedItems(unpurchasedItems);
                     shoppingListRef.child(ShoppingListID).setValue(shoppingList);
+                    //editB.setClickable(false);
+                    //deleteB.setClickable(false);
+                    //boughtB.setClickable(false);
                     Toast.makeText(itemlist.getContext(),  item + " removed", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -511,7 +523,7 @@ public class ListFragment extends Fragment {
             if (box.isChecked()) {
                 box.setChecked(false);
                 edititem = (TextView) row.getChildAt(1);
-                changeItem(edititem.getText().toString(), i );
+                changeItem(edititem.getText().toString());
                 break;
             }
         }

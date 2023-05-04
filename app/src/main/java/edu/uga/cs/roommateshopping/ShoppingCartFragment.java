@@ -141,11 +141,12 @@ public class ShoppingCartFragment extends Fragment {
         doneB.setOnClickListener(v -> {
             FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
-            HomeFragment homeFragment = new HomeFragment();
+            ListFragment listFragment = new ListFragment();
             Bundle args = new Bundle();
             args.putParcelable("currentUser", firebaseUser);
-            homeFragment.setArguments(args);
-            transaction.add(R.id.main_activity_layout, homeFragment);
+            args.putString("ShoppingListID", ShoppingListID);
+            listFragment.setArguments(args);
+            transaction.add(R.id.main_activity_layout, listFragment);
             transaction.remove(ShoppingCartFragment.this);
             transaction.commit();
         });
@@ -328,6 +329,9 @@ public class ShoppingCartFragment extends Fragment {
                         if (currentUnpurchasedItems.contains(cartItems.get(i))) {
                             currentUnpurchasedItems.remove(cartItems.get(i));
                         }
+                    }
+                    if (currentUnpurchasedItems.size() == 0) {
+                        currentUnpurchasedItems.add("");
                     }
                     unpurchasedItemsRef.setValue(currentUnpurchasedItems);
 
