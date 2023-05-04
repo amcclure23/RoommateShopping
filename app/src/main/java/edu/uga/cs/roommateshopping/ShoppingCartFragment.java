@@ -380,9 +380,10 @@ public class ShoppingCartFragment extends Fragment {
                     Toast.makeText(itemlist.getContext(), "Purchase has been processed.", Toast.LENGTH_SHORT).show();
                     FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
                     FragmentTransaction transaction = fragmentManager.beginTransaction();
-                    HomeFragment homeFragment = new HomeFragment();
+                    SettleFragment homeFragment = new SettleFragment();
                     Bundle args = new Bundle();
                     args.putParcelable("currentUser", firebaseUser);
+                    args.putString("ShoppingListID", ShoppingListID);
                     homeFragment.setArguments(args);
                     transaction.add(R.id.main_activity_layout, homeFragment);
                     transaction.remove(ShoppingCartFragment.this);

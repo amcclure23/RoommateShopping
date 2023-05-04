@@ -148,16 +148,16 @@ public class SettleFragment extends Fragment {
                     ArrayList<PurchasedItems> purchaseditems = shoppingList.getPurchasedItems();
                     rowNum = 0;
                     String value;
-                   /**
-                    for (ArrayList<PurchasedItems> s : purchaseditems ) {
-                        value = //user full name
-                                value+= ": Price: ";
-                        value += //price
-                                value += "items: ";
-                            addItemToTable(value);
+
+
+                    for (int i = 1; i<purchaseditems.size();i++ ) {
+                        value=purchaseditems.get(i).getUser()+ " Price: "
+                                +purchaseditems.get(i).getPrice()+" Items: ";
+
+                        addItemToTable(value,purchaseditems.get(i).getItems());
 
                     }
-                    */
+
                 }
             }
             @Override
@@ -168,14 +168,14 @@ public class SettleFragment extends Fragment {
             }
         });
     }
-    private void addItemToTable(String value) {
+    private void addItemToTable(String value, ArrayList<String> s) {
 
         TableRow row = new TableRow(userpurcases.getContext());
         row.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
 
         TextView name = new TextView(userpurcases.getContext());
-        name.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
-        TableRow.LayoutParams layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT);
+        name.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+        TableRow.LayoutParams layoutParams = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT);
         layoutParams.gravity = Gravity.CENTER_VERTICAL;
         name.setPadding(5,5,5,0);
         name.setText(value);
@@ -183,16 +183,15 @@ public class SettleFragment extends Fragment {
         name.setTextSize(COMPLEX_UNIT_SP, 18);
 
         Spinner items = new Spinner(userpurcases.getContext());
-        items.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
-        ArrayList<String> itemsList =purchase.getItems();
+        items.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(userpurcases.getContext(), android.R.layout.simple_spinner_item);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         items.setAdapter(spinnerAdapter);
 
-        for (String s : itemsList) {
-            if(!s.equals("")) {
-                spinnerAdapter.add(s);
-            }
+        for (String x : s) {
+                spinnerAdapter.add(x);
+
         }
         items.setAdapter(spinnerAdapter);
         items.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -207,6 +206,7 @@ public class SettleFragment extends Fragment {
             }
 
         });
+        items.setBackgroundColor(Color.GRAY);
         row.addView(name);
         row.addView(items);
         userpurcases.addView(row, rowNum);
