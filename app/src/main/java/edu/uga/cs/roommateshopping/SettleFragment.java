@@ -145,13 +145,19 @@ public class SettleFragment extends Fragment {
                 userpurcases.removeAllViews();
                 shoppingList = snapshot.getValue(ShoppingList.class);
                 if (shoppingList != null) {
-                    ArrayList<String> unpurchaseditems = shoppingList.getUnpurchasedItems();
+                    ArrayList<PurchasedItems> purchaseditems = shoppingList.getPurchasedItems();
                     rowNum = 0;
-                    for (String s : unpurchaseditems) {
-                        if(!s.equals("")) {
-                            addItemToTable(s);
-                        }
+                    String value;
+                   /**
+                    for (ArrayList<PurchasedItems> s : purchaseditems ) {
+                        value = //user full name
+                                value+= ": Price: ";
+                        value += //price
+                                value += "items: ";
+                            addItemToTable(value);
+
                     }
+                    */
                 }
             }
             @Override
